@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Data;
+using TaskFlow.DTOs;
 using TaskFlow.Models;
 
 namespace TaskFlow.Controllers
@@ -17,16 +18,34 @@ namespace TaskFlow.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
+        public async Task<ActionResult<IEnumerable<ProjectReadDto>>> GetProjects()
         {
-            var projects = await _context.Projects.ToListAsync();
+            var projects = await _context.Projects
+                .Select(p => new ProjectReadDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    CreatedAt = p.CreatedAt
+                })
+                .ToListAsync();
+
             return Ok(projects);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Project>> GetProject(int id)
+        public async Task<ActionResult<ProjectReadDto>> GetProject(int id)
         {
-            var project = await _context.Projects.FindAsync(id);
+            var project = await _context.Projects
+                .Where(p => p.Id == id)
+                .Select(p => new ProjectReadDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    CreatedAt = p.CreatedAt
+                })
+                .FirstOrDefaultAsync();
 
             if (project == null)
             {
@@ -37,55 +56,59 @@ namespace TaskFlow.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Project>> CreateProject(Project project)
+        public async Task<ActionResult<ProjectReadDto>> CreateProject(ProjectCreateDto dto)
         {
+            var project = new Project
+            {
+                Name = dto.Name,
+                Description = dto.Description
+            };
+
             _context.Projects.Add(project);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetProject), new { id = project.Id }, project);
+            var result = new ProjectReadDto
+            {
+                Id = project.Id,
+                Name = project.Name,
+                Description = project.Description,
+                CreatedAt = project.CreatedAt
+            };
+
+            return CreatedAtAction(nameof(GetProject), new { id = project.Id }, result);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Project>> UpdateProject(int id, Project project)
+        public async Task<IActionResult> UpdateProject(int id, ProjectUpdateDto dto)
         {
-            if (id != project.Id)
-            {
-                return BadRequest();
-            }
-            _context.Entry(project).State = EntityState.Modified;
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProjectExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return Ok(project);
-        }
+            var project = await _context.Projects.FindAsync(id);
 
-        private bool ProjectExists(int id)
-        {
-            return _context.Projects.Any(e => e.Id == id);
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            project.Name = dto.Name;
+            project.Description = dto.Description;
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProject(int id)
         {
             var project = await _context.Projects.FindAsync(id);
+
             if (project == null)
             {
                 return NotFound();
             }
+
             _context.Projects.Remove(project);
             await _context.SaveChangesAsync();
+
             return NoContent();
         }
     }
