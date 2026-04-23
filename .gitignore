@@ -1,0 +1,94 @@
+# =====================================
+# Visual Studio / IDE
+# =====================================
+.vs/
+.vscode/
+.idea/
+
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.swp
+*.tmp
+
+_ReSharper*/
+*.DotSettings.user
+
+# =====================================
+# .NET / ASP.NET Core
+# =====================================
+bin/
+obj/
+Debug/
+Release/
+x64/
+x86/
+artifacts/
+TestResults/
+
+# Logs
+*.log
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# Publish
+publish/
+
+# IIS / local web files
+wwwroot/dist/
+wwwroot/lib/
+
+# Local DB files
+*.mdf
+*.ldf
+
+# SQLite (if ever used)
+*.db
+*.db-shm
+*.db-wal
+
+# =====================================
+# Environment / secrets
+# =====================================
+.env
+.env.*
+!.env.example
+
+appsettings.Local.json
+appsettings.*.local.json
+
+# user secrets / local secret exports if any
+secrets.json
+
+# =====================================
+# Angular / Node
+# =====================================
+node_modules/
+dist/
+.angular/cache/
+coverage/
+.npm/
+.pnpm-store/
+out-tsc/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+.eslintcache
+.stylelintcache
+.sass-cache/
+.tmp/
+.temp/
+
+# =====================================
+# OS files
+# =====================================
+.DS_Store
+Thumbs.db
+desktop.ini
